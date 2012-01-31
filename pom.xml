@@ -31,14 +31,14 @@
     </parent>
 
     <properties>
-        <elasticsearch.version>0.18.5</elasticsearch.version>
+        <elasticsearch.version>0.19.0-SNAPSHOT</elasticsearch.version>
     </properties>
 
     <repositories>
         <repository>
-          <id>spy</id>
-          <name>Spy Repository</name>
-          <url>http://files.couchbase.com/maven2/</url>
+            <id>spy</id>
+            <name>Spy Repository</name>
+            <url>http://files.couchbase.com/maven2/</url>
         </repository>
     </repositories>
 
@@ -58,12 +58,12 @@
         </dependency>
 
         <dependency>
-               <groupId>spy</groupId>
-               <artifactId>spymemcached</artifactId>
-               <version>2.6</version>
-               <scope>test</scope>
+            <groupId>spy</groupId>
+            <artifactId>spymemcached</artifactId>
+            <version>2.6</version>
+            <scope>test</scope>
         </dependency>
-           
+
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
