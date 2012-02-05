@@ -24,9 +24,6 @@ import org.elasticsearch.common.netty.channel.MessageEvent;
 import org.elasticsearch.common.netty.channel.SimpleChannelUpstreamHandler;
 import org.elasticsearch.memcached.MemcachedRestRequest;
 import org.elasticsearch.rest.RestController;
-import org.elasticsearch.rest.StringRestResponse;
-
-import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 
 /**
  */
@@ -48,11 +45,7 @@ public class MemcachedDispatcher extends SimpleChannelUpstreamHandler {
         }
         MemcachedRestRequest request = (MemcachedRestRequest) e.getMessage();
         MemcachedRestChannel channel = new MemcachedRestChannel(ctx.getChannel(), request);
-
-        if (!restController.dispatchRequest(request, channel)) {
-            channel.sendResponse(new StringRestResponse(BAD_REQUEST, "No handler found for uri [" + request.uri() + "] and method [" + request.method() + "]"));
-        }
-
+        restController.dispatchRequest(request, channel);
         super.messageReceived(ctx, e);
     }
 }
