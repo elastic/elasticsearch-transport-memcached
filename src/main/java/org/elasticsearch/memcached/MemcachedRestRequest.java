@@ -19,7 +19,8 @@
 
 package org.elasticsearch.memcached;
 
-import org.elasticsearch.common.Unicode;
+import org.elasticsearch.common.bytes.BytesArray;
+import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.rest.support.AbstractRestRequest;
 import org.elasticsearch.rest.support.RestUtils;
 
@@ -124,23 +125,8 @@ public class MemcachedRestRequest extends AbstractRestRequest {
     }
 
     @Override
-    public byte[] contentByteArray() {
-        return data;
-    }
-
-    @Override
-    public int contentByteArrayOffset() {
-        return 0;
-    }
-
-    @Override
-    public int contentLength() {
-        return dataSize;
-    }
-
-    @Override
-    public String contentAsString() {
-        return Unicode.fromBytes(data);
+    public BytesReference content() {
+        return new BytesArray(data);
     }
 
     @Override

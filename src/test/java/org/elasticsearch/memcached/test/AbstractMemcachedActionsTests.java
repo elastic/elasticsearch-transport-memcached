@@ -76,7 +76,7 @@ public abstract class AbstractMemcachedActionsTests {
 //            assertThat(setResult.get(10, TimeUnit.SECONDS), equalTo(true));
 //        }
 
-        Future<Boolean> setResult = memcachedClient.set("/test/person/1", 0, jsonBuilder().startObject().field("test", "value").endObject().copiedBytes());
+        Future<Boolean> setResult = memcachedClient.set("/test/person/1", 0, jsonBuilder().startObject().field("test", "value").endObject().bytes().copyBytesArray().array());
         assertThat(setResult.get(10, TimeUnit.SECONDS), equalTo(true));
 
         ClusterHealthResponse health = node.client().admin().cluster().prepareHealth().setWaitForYellowStatus().execute().actionGet();
