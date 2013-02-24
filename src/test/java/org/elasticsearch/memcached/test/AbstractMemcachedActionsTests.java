@@ -80,7 +80,7 @@ public abstract class AbstractMemcachedActionsTests {
         assertThat(setResult.get(10, TimeUnit.SECONDS), equalTo(true));
 
         ClusterHealthResponse health = node.client().admin().cluster().prepareHealth().setWaitForYellowStatus().execute().actionGet();
-        assertThat(health.timedOut(), equalTo(false));
+        assertThat(health.isTimedOut(), equalTo(false));
 
         String getResult = (String) memcachedClient.get("/_refresh");
         System.out.println("REFRESH " + getResult);
