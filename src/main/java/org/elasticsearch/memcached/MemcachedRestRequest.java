@@ -19,7 +19,6 @@
 
 package org.elasticsearch.memcached;
 
-import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.rest.support.AbstractRestRequest;
 import org.elasticsearch.rest.support.RestUtils;
@@ -32,23 +31,14 @@ import java.util.Map;
 public class MemcachedRestRequest extends AbstractRestRequest {
 
     private final Method method;
-
     private final String uri;
-
     private final byte[] uriBytes;
-
     private final int dataSize;
-
     private boolean binary;
-
     private final Map<String, String> params;
-
     private final String rawPath;
-
-    private byte[] data;
-
+    private BytesReference data;
     private int opaque;
-
     private boolean quiet;
 
     public MemcachedRestRequest(Method method, String uri, byte[] uriBytes, int dataSize, boolean binary) {
@@ -110,7 +100,7 @@ public class MemcachedRestRequest extends AbstractRestRequest {
         return dataSize;
     }
 
-    public void setData(byte[] data) {
+    public void setData(BytesReference data) {
         this.data = data;
     }
 
@@ -121,12 +111,13 @@ public class MemcachedRestRequest extends AbstractRestRequest {
 
     @Override
     public boolean contentUnsafe() {
+        // we still slice on teh network buffer, but its always copied in (this version) of netty
         return false;
     }
 
     @Override
     public BytesReference content() {
-        return new BytesArray(data);
+        return data;
     }
 
     @Override

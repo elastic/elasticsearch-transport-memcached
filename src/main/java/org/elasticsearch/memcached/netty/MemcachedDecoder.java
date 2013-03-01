@@ -21,6 +21,9 @@ package org.elasticsearch.memcached.netty;
 
 import org.elasticsearch.Version;
 import org.elasticsearch.common.Unicode;
+import org.elasticsearch.common.bytes.BytesArray;
+import org.elasticsearch.common.bytes.BytesReference;
+import org.elasticsearch.common.bytes.ChannelBufferBytesReference;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.netty.buffer.ChannelBuffer;
 import org.elasticsearch.common.netty.buffer.ChannelBuffers;
@@ -110,9 +113,7 @@ public class MemcachedDecoder extends FrameDecoder {
                     int size = totalBodyLength - keyLength - extraLength;
                     request = new MemcachedRestRequest(RestRequest.Method.POST, uri, key, size, true);
                     request.setOpaque(opaque);
-                    byte[] data = new byte[size];
-                    buffer.readBytes(data, 0, size);
-                    request.setData(data);
+                    request.setData(new ChannelBufferBytesReference(buffer.readSlice(size)));
                     request.setQuiet(opcode == 0x11);
                     return request;
                 } else if (opcode == 0x0A || opcode == 0x10) { // NOOP or STATS
@@ -172,7 +173,7 @@ public class MemcachedDecoder extends FrameDecoder {
                 if ("get".equals(cmd)) {
                     request = new MemcachedRestRequest(RestRequest.Method.GET, args[1], null, -1, false);
                     if (args.length > 3) {
-                        request.setData(Unicode.fromStringAsBytes(args[2]));
+                        request.setData(new BytesArray(Unicode.fromStringAsBytes(args[2])));
                     }
                     return request;
                 } else if ("delete".equals(cmd)) {
@@ -206,8 +207,7 @@ public class MemcachedDecoder extends FrameDecoder {
             if (buffer.readableBytes() < (request.getDataSize() + 2)) {
                 return null;
             }
-            byte[] data = new byte[request.getDataSize()];
-            buffer.readBytes(data, 0, data.length);
+            BytesReference data = new ChannelBufferBytesReference(buffer.readSlice(request.getDataSize()));
             byte next = buffer.readByte();
             if (next == CR) {
                 next = buffer.readByte();
