@@ -19,7 +19,6 @@
 
 package org.elasticsearch.memcached.netty;
 
-import org.elasticsearch.common.Bytes;
 import org.elasticsearch.common.Unicode;
 import org.elasticsearch.common.io.stream.CachedStreamOutput;
 import org.elasticsearch.common.netty.buffer.ChannelBuffer;
@@ -28,6 +27,7 @@ import org.elasticsearch.common.netty.channel.Channel;
 import org.elasticsearch.common.netty.channel.ChannelFuture;
 import org.elasticsearch.common.netty.channel.ChannelFutureListener;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.memcached.common.Bytes;
 import org.elasticsearch.memcached.MemcachedRestRequest;
 import org.elasticsearch.memcached.MemcachedTransportException;
 import org.elasticsearch.rest.RestChannel;
