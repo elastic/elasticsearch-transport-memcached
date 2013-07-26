@@ -19,7 +19,8 @@
 
 package org.elasticsearch.memcached.netty;
 
-import org.elasticsearch.common.Unicode;
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.UnicodeUtil;
 import org.elasticsearch.common.io.stream.CachedStreamOutput;
 import org.elasticsearch.common.netty.buffer.ChannelBuffer;
 import org.elasticsearch.common.netty.buffer.ChannelBuffers;
@@ -27,9 +28,9 @@ import org.elasticsearch.common.netty.channel.Channel;
 import org.elasticsearch.common.netty.channel.ChannelFuture;
 import org.elasticsearch.common.netty.channel.ChannelFutureListener;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.memcached.common.Bytes;
 import org.elasticsearch.memcached.MemcachedRestRequest;
 import org.elasticsearch.memcached.MemcachedTransportException;
+import org.elasticsearch.memcached.common.Bytes;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestResponse;
@@ -37,6 +38,7 @@ import org.elasticsearch.rest.XContentRestResponse;
 import org.elasticsearch.transport.netty.NettyTransport;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 /**
  */
@@ -154,7 +156,8 @@ public class MemcachedRestChannel implements RestChannel {
                     try {
                         ChannelBuffer writeBuffer = ChannelBuffers.dynamicBuffer(response.contentLength() + 512);
                         writeBuffer.writeBytes(VALUE.duplicate());
-                        writeBuffer.writeBytes(Unicode.fromStringAsBytes(request.uri()));
+                        BytesRef bytesRef = new BytesRef(request.uri());
+                        writeBuffer.writeBytes(bytesRef.bytes, bytesRef.offset, bytesRef.length);
                         writeBuffer.writeByte(' ');
                         writeBuffer.writeByte('0');
                         writeBuffer.writeByte(' ');

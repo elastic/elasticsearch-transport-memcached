@@ -19,8 +19,10 @@
 
 package org.elasticsearch.memcached.netty;
 
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.CharsRef;
+import org.apache.lucene.util.UnicodeUtil;
 import org.elasticsearch.Version;
-import org.elasticsearch.common.Unicode;
 import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.bytes.ChannelBufferBytesReference;
@@ -91,27 +93,28 @@ public class MemcachedDecoder extends FrameDecoder {
 
                 buffer.skipBytes(extraLength); // get extras, can be empty
 
+                CharsRef spare = new CharsRef();
                 if (opcode == 0x00) { // GET
                     byte[] key = new byte[keyLength];
                     buffer.readBytes(key);
-                    String uri = Unicode.fromBytes(key);
-                    request = new MemcachedRestRequest(RestRequest.Method.GET, uri, key, -1, true);
+                    UnicodeUtil.UTF8toUTF16(key, 0, key.length, spare);
+                    request = new MemcachedRestRequest(RestRequest.Method.GET, spare.toString(), key, -1, true);
                     request.setOpaque(opaque);
                     return request;
                 } else if (opcode == 0x04) { // DELETE
                     byte[] key = new byte[keyLength];
                     buffer.readBytes(key);
-                    String uri = Unicode.fromBytes(key);
-                    request = new MemcachedRestRequest(RestRequest.Method.DELETE, uri, key, -1, true);
+                    UnicodeUtil.UTF8toUTF16(key, 0, key.length, spare);
+                    request = new MemcachedRestRequest(RestRequest.Method.DELETE, spare.toString(), key, -1, true);
                     request.setOpaque(opaque);
                     return request;
                 } else if (opcode == 0x01/* || opcode == 0x11*/) { // SET
                     byte[] key = new byte[keyLength];
                     buffer.readBytes(key);
-                    String uri = Unicode.fromBytes(key);
+                    UnicodeUtil.UTF8toUTF16(key, 0, key.length, spare);
                     // the remainder of the message -- that is, totalLength - (keyLength + extraLength) should be the payload
                     int size = totalBodyLength - keyLength - extraLength;
-                    request = new MemcachedRestRequest(RestRequest.Method.POST, uri, key, size, true);
+                    request = new MemcachedRestRequest(RestRequest.Method.POST, spare.toString(), key, size, true);
                     request.setOpaque(opaque);
                     request.setData(new ChannelBufferBytesReference(buffer.readSlice(size)));
                     request.setQuiet(opcode == 0x11);
@@ -173,7 +176,8 @@ public class MemcachedDecoder extends FrameDecoder {
                 if ("get".equals(cmd)) {
                     request = new MemcachedRestRequest(RestRequest.Method.GET, args[1], null, -1, false);
                     if (args.length > 3) {
-                        request.setData(new BytesArray(Unicode.fromStringAsBytes(args[2])));
+                        BytesRef bytesRef = new BytesRef(args[2]);
+                        request.setData(new BytesArray(bytesRef));
                     }
                     return request;
                 } else if ("delete".equals(cmd)) {
