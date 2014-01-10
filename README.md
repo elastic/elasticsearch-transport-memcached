@@ -1,4 +1,4 @@
-memcached Transport for ElasticSearch
+memcached Transport for elasticsearch
 ==================================
 
 The memcached transport plugin allows to use the REST interface over memcached (though with limitations).

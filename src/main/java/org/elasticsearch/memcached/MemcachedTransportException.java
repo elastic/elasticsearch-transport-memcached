@@ -19,11 +19,11 @@
 
 package org.elasticsearch.memcached;
 
-import org.elasticsearch.ElasticSearchException;
+import org.elasticsearch.ElasticsearchException;
 
 /**
  */
-public class MemcachedTransportException extends ElasticSearchException {
+public class MemcachedTransportException extends ElasticsearchException {
 
     public MemcachedTransportException(String msg) {
         super(msg);
