@@ -20,13 +20,13 @@
 package org.elasticsearch.memcached.netty;
 
 import org.apache.lucene.util.BytesRef;
-import org.elasticsearch.common.io.stream.CachedStreamOutput;
 import org.elasticsearch.common.netty.buffer.ChannelBuffer;
 import org.elasticsearch.common.netty.buffer.ChannelBuffers;
 import org.elasticsearch.common.netty.channel.Channel;
 import org.elasticsearch.common.netty.channel.ChannelFuture;
 import org.elasticsearch.common.netty.channel.ChannelFutureListener;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.http.HttpException;
 import org.elasticsearch.memcached.MemcachedRestRequest;
 import org.elasticsearch.memcached.MemcachedTransportException;
 import org.elasticsearch.memcached.common.Bytes;
@@ -34,8 +34,8 @@ import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestResponse;
 import org.elasticsearch.rest.XContentRestResponse;
-import org.elasticsearch.transport.netty.NettyTransport;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
@@ -111,28 +111,29 @@ public class MemcachedRestChannel implements RestChannel {
                 }
                 ChannelFutureListener releaseContentListener = null;
                 if (dataLength > 0) {
+                    // Convert the response content to a ChannelBuffer.
+                    ChannelBuffer buf;
+                    try {
                     if (response instanceof XContentRestResponse) {
                         // if its a builder based response, and it was created with a CachedStreamOutput, we can release it
                         // after we write the response, and no need to do an extra copy because its not thread safe
                         XContentBuilder builder = ((XContentRestResponse) response).builder();
-                        if (builder.payload() instanceof CachedStreamOutput.Entry) {
-                            releaseContentListener = new NettyTransport.CacheFutureListener((CachedStreamOutput.Entry) builder.payload());
-                            ChannelBuffer buf = builder.bytes().toChannelBuffer();
-                            writeBuffer = ChannelBuffers.wrappedBuffer(writeBuffer, buf);
-                        } else if (response.contentThreadSafe()) {
-                            ChannelBuffer buf = builder.bytes().toChannelBuffer();
-                            writeBuffer = ChannelBuffers.wrappedBuffer(writeBuffer, buf);
+                            if (response.contentThreadSafe()) {
+                                buf = builder.bytes().toChannelBuffer();
                         } else {
-                            writeBuffer.writeBytes(response.content(), 0, response.contentLength());
+                                buf = builder.bytes().copyBytesArray().toChannelBuffer();
                         }
                     } else {
                         if (response.contentThreadSafe()) {
-                            ChannelBuffer buf = ChannelBuffers.wrappedBuffer(response.content(), 0, response.contentLength());
-                            writeBuffer = ChannelBuffers.wrappedBuffer(writeBuffer, buf);
+                                buf = ChannelBuffers.wrappedBuffer(response.content(), response.contentOffset(), response.contentLength());
                         } else {
-                            writeBuffer.writeBytes(response.content(), 0, response.contentLength());
+                                buf = ChannelBuffers.copiedBuffer(response.content(), response.contentOffset(), response.contentLength());
                         }
                     }
+                    } catch (IOException e) {
+                        throw new HttpException("Failed to convert response to bytes", e);
+                    }
+                    writeBuffer = ChannelBuffers.wrappedBuffer(writeBuffer, buf);
                 }
                 ChannelFuture future = channel.write(writeBuffer);
                 if (releaseContentListener != null) {

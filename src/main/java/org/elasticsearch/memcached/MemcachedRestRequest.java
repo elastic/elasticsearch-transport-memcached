@@ -20,7 +20,7 @@
 package org.elasticsearch.memcached;
 
 import org.elasticsearch.common.bytes.BytesReference;
-import org.elasticsearch.rest.support.AbstractRestRequest;
+import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.support.RestUtils;
 
 import java.util.HashMap;
@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  */
-public class MemcachedRestRequest extends AbstractRestRequest {
+public class MemcachedRestRequest extends RestRequest {
 
     private final Method method;
     private final String uri;
@@ -122,6 +122,11 @@ public class MemcachedRestRequest extends AbstractRestRequest {
 
     @Override
     public String header(String name) {
+        return null;
+    }
+
+    @Override
+    public Iterable<Map.Entry<String, String>> headers() {
         return null;
     }
 
