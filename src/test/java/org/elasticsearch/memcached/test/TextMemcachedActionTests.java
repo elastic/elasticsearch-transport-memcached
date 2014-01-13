@@ -21,13 +21,11 @@ package org.elasticsearch.memcached.test;
 
 import net.spy.memcached.AddrUtil;
 import net.spy.memcached.MemcachedClient;
-import org.testng.annotations.Test;
 
 import java.io.IOException;
 
 /**
  */
-@Test
 public class TextMemcachedActionTests extends AbstractMemcachedActionsTests {
 
     @Override

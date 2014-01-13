@@ -20,47 +20,36 @@
 package org.elasticsearch.memcached.test;
 
 import net.spy.memcached.MemcachedClient;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.common.network.NetworkUtils;
-import org.elasticsearch.node.Node;
+import org.elasticsearch.test.ElasticsearchIntegrationTest;
 import org.hamcrest.Matchers;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import static org.elasticsearch.common.settings.ImmutableSettings.settingsBuilder;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
  */
-public abstract class AbstractMemcachedActionsTests {
-
-    private Node node;
+@ElasticsearchIntegrationTest.ClusterScope(transportClientRatio = 0.0, numNodes = 1, scope = ElasticsearchIntegrationTest.Scope.TEST)
+public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegrationTest {
 
     private MemcachedClient memcachedClient;
 
-    @BeforeMethod
-    public void setup() throws IOException {
-        node = nodeBuilder().settings(settingsBuilder()
-                .put("path.data", "target/data")
-                .put("cluster.name", "test-cluster-" + NetworkUtils.getLocalAddress())
-                .put("gateway.type", "none")).node();
+    @Before
+    public void startMemcache() throws IOException {
         memcachedClient = createMemcachedClient();
     }
 
     protected abstract MemcachedClient createMemcachedClient() throws IOException;
 
-    @AfterMethod
-    public void tearDown() {
-        memcachedClient.shutdown();
-        node.close();
+    @After
+    public void stopMemcache() {
+        if (memcachedClient != null) memcachedClient.shutdown();
     }
 
     @Test
@@ -79,17 +68,16 @@ public abstract class AbstractMemcachedActionsTests {
         Future<Boolean> setResult = memcachedClient.set("/test/person/1", 0, jsonBuilder().startObject().field("test", "value").endObject().bytes().copyBytesArray().array());
         assertThat(setResult.get(10, TimeUnit.SECONDS), equalTo(true));
 
-        ClusterHealthResponse health = node.client().admin().cluster().prepareHealth().setWaitForYellowStatus().execute().actionGet();
-        assertThat(health.isTimedOut(), equalTo(false));
+        ensureYellow();
 
         String getResult = (String) memcachedClient.get("/_refresh");
-        System.out.println("REFRESH " + getResult);
+        logger.info(" --> REFRESH " + getResult);
         assertThat(getResult, Matchers.containsString("\"total\":10"));
         assertThat(getResult, Matchers.containsString("\"successful\":5"));
         assertThat(getResult, Matchers.containsString("\"failed\":0"));
 
         getResult = (String) memcachedClient.get("/test/person/1");
-        System.out.println("GET " + getResult);
+        logger.info(" --> GET " + getResult);
         assertThat(getResult, Matchers.containsString("\"_index\":\"test\""));
         assertThat(getResult, Matchers.containsString("\"_type\":\"person\""));
         assertThat(getResult, Matchers.containsString("\"_id\":\"1\""));
@@ -98,12 +86,12 @@ public abstract class AbstractMemcachedActionsTests {
         assertThat(deleteResult.get(10, TimeUnit.SECONDS), equalTo(true));
 
         getResult = (String) memcachedClient.get("/_refresh");
-        System.out.println("REFRESH " + getResult);
+        logger.info(" --> REFRESH " + getResult);
         assertThat(getResult, Matchers.containsString("\"total\":10"));
         assertThat(getResult, Matchers.containsString("\"successful\":5"));
         assertThat(getResult, Matchers.containsString("\"failed\":0"));
 
         getResult = (String) memcachedClient.get("/test/person/1");
-        System.out.println("GET " + getResult);
+        logger.info(" --> GET " + getResult);
     }
 }
