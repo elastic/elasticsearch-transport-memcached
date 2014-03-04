@@ -7,8 +7,8 @@ In order to install the plugin, simply run: `bin/plugin -install elasticsearch/e
 
 |      memcached Plugin       | elasticsearch         | Release date |
 |-----------------------------|-----------------------|:------------:|
-| 2.0.0-SNAPSHOT (master)     | 1.0.0.RC1 -> master   |              |
-| 2.0.0.RC1                   | 1.0.0.RC1 -> master   |  2014-10-15  |
+| 2.0.0-SNAPSHOT (master)     | 1.0.0 -> master       |              |
+| 2.0.0.RC1                   | 1.0.0.RC1             |  2014-10-15  |
 | 1.8.0-SNAPSHOT (1.x)        | 0.90.10 -> 0.90       |              |
 | 1.7.0                       | 0.90.10 -> 0.90       |  2014-01-13  |
 | 1.6.0                       | 0.90.2 -> 0.90.9      |  2013-07-26  |

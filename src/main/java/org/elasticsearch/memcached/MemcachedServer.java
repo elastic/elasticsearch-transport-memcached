@@ -51,12 +51,12 @@ public class MemcachedServer extends AbstractLifecycleComponent<MemcachedServer>
         if (logger.isInfoEnabled()) {
             logger.info("{}", transport.boundAddress());
         }
-        nodeService.putNodeAttribute("memcached_address", transport.boundAddress().publishAddress().toString());
+        nodeService.putAttribute("memcached_address", transport.boundAddress().publishAddress().toString());
     }
 
     @Override
     protected void doStop() throws ElasticsearchException {
-        nodeService.removeNodeAttribute("memcached_address");
+        nodeService.removeAttribute("memcached_address");
         transport.stop();
     }
 
