@@ -5,19 +5,13 @@ The memcached transport plugin allows to use the REST interface over memcached (
 
 In order to install the plugin, simply run: `bin/plugin -install elasticsearch/elasticsearch-transport-memcached/2.0.0.RC1`.
 
+* For 1.0.x elasticsearch versions, look at [master branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/master).
+* For 0.90.x elasticsearch versions, look at [1.x branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/1.x).
+
 |      memcached Plugin       | elasticsearch         | Release date |
 |-----------------------------|-----------------------|:------------:|
-| 2.0.0-SNAPSHOT (master)     | 1.0.0 -> master       |              |
+| 2.0.0-SNAPSHOT              | 1.0.0 -> master       |  XXXX-XX-XX  |
 | 2.0.0.RC1                   | 1.0.0.RC1             |  2014-10-15  |
-| 1.8.0-SNAPSHOT (1.x)        | 0.90.10 -> 0.90       |              |
-| 1.7.0                       | 0.90.10 -> 0.90       |  2014-01-13  |
-| 1.6.0                       | 0.90.2 -> 0.90.9      |  2013-07-26  |
-| 1.5.0                       | 0.90.0 -> 0.90.1      |  2013-05-21  |
-| 1.4.0                       | 0.90.0 -> 0.90.1      |  2013-03-01  |
-| 1.3.0                       | 0.90.0 -> 0.90.1      |  2013-06-06  |
-| 1.2.0                       | 0.19.9 -> 0.20        |  2012-08-23  |
-| 1.1.0                       | 0.19.0 -> 0.19.8      |  2012-02-07  |
-| 1.0.0                       | 0.18                  |  2011-12-05  |
 
 License
 -------
