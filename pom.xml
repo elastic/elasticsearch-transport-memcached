@@ -38,6 +38,7 @@
         <tests.shuffle>true</tests.shuffle>
         <tests.output>onerror</tests.output>
         <tests.client.ratio></tests.client.ratio>
+        <es.plugin.port>11211</es.plugin.port>
         <es.logger.level>INFO</es.logger.level>
     </properties>
 
@@ -115,6 +116,15 @@
                 </includes>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

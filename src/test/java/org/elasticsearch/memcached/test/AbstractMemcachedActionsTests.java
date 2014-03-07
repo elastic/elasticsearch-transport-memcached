@@ -20,6 +20,8 @@
 package org.elasticsearch.memcached.test;
 
 import net.spy.memcached.MemcachedClient;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.test.ElasticsearchIntegrationTest;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -35,10 +37,19 @@ import static org.hamcrest.Matchers.equalTo;
 
 /**
  */
-@ElasticsearchIntegrationTest.ClusterScope(transportClientRatio = 0.0, numNodes = 1, scope = ElasticsearchIntegrationTest.Scope.TEST)
+@ElasticsearchIntegrationTest.ClusterScope(transportClientRatio = 0.0, scope = ElasticsearchIntegrationTest.Scope.SUITE)
 public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegrationTest {
 
     private MemcachedClient memcachedClient;
+    public static int getPort(int nodeOrdinal) {
+        try {
+            return PropertiesHelper.getAsInt("plugin.port")
+                    + nodeOrdinal * 10;
+        } catch (IOException e) {
+        }
+
+        return -1;
+    }
 
     @Before
     public void startMemcache() throws IOException {
@@ -50,6 +61,13 @@ public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegra
     @After
     public void stopMemcache() {
         if (memcachedClient != null) memcachedClient.shutdown();
+    }
+
+    @Override
+    protected Settings nodeSettings(int nodeOrdinal) {
+        return ImmutableSettings.builder()
+                .put("memcached.port", getPort(nodeOrdinal))
+                .build();
     }
 
     @Test
@@ -65,6 +83,9 @@ public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegra
 //            assertThat(setResult.get(10, TimeUnit.SECONDS), equalTo(true));
 //        }
 
+        // If we have a cluster of 1 node, only 5 shards will be allocated. Otherwise, 10.
+        int nbShards = cluster().size() > 1 ? 10 : 5;
+
         Future<Boolean> setResult = memcachedClient.set("/test/person/1", 0, jsonBuilder().startObject().field("test", "value").endObject().bytes().copyBytesArray().array());
         assertThat(setResult.get(10, TimeUnit.SECONDS), equalTo(true));
 
@@ -73,7 +94,7 @@ public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegra
         String getResult = (String) memcachedClient.get("/_refresh");
         logger.info(" --> REFRESH " + getResult);
         assertThat(getResult, Matchers.containsString("\"total\":10"));
-        assertThat(getResult, Matchers.containsString("\"successful\":5"));
+        assertThat(getResult, Matchers.containsString("\"successful\":"+nbShards));
         assertThat(getResult, Matchers.containsString("\"failed\":0"));
 
         getResult = (String) memcachedClient.get("/test/person/1");
@@ -88,7 +109,7 @@ public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegra
         getResult = (String) memcachedClient.get("/_refresh");
         logger.info(" --> REFRESH " + getResult);
         assertThat(getResult, Matchers.containsString("\"total\":10"));
-        assertThat(getResult, Matchers.containsString("\"successful\":5"));
+        assertThat(getResult, Matchers.containsString("\"successful\":"+nbShards));
         assertThat(getResult, Matchers.containsString("\"failed\":0"));
 
         getResult = (String) memcachedClient.get("/test/person/1");

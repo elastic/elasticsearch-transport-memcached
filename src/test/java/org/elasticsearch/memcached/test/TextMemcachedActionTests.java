@@ -30,6 +30,8 @@ public class TextMemcachedActionTests extends AbstractMemcachedActionsTests {
 
     @Override
     protected MemcachedClient createMemcachedClient() throws IOException {
-        return new MemcachedClient(AddrUtil.getAddresses("localhost:11211"));
+        int port = getPort(randomInt(cluster().size()-1));
+        logger.info("  --> Testing Thrift on port [{}]", port);
+        return new MemcachedClient(AddrUtil.getAddresses("localhost:" + port));
     }
 }
