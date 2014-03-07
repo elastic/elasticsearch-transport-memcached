@@ -19,20 +19,16 @@
 
 package org.elasticsearch.memcached.test;
 
-import net.spy.memcached.AddrUtil;
-import net.spy.memcached.BinaryConnectionFactory;
-import net.spy.memcached.MemcachedClient;
-
 import java.io.IOException;
+import java.util.Properties;
 
 /**
+ * Get information from plugin-test.properties file
  */
-public class BinaryMemcachedActionTests extends AbstractMemcachedActionsTests {
-
-    @Override
-    protected MemcachedClient createMemcachedClient() throws IOException {
-        int port = getPort(randomInt(cluster().size()-1));
-        logger.info("  --> Testing Thrift on port [{}]", port);
-        return new MemcachedClient(new BinaryConnectionFactory(), AddrUtil.getAddresses("localhost:" + port));
+public class PropertiesHelper {
+    public static int getAsInt(String name) throws IOException {
+        final Properties properties = new Properties();
+        properties.load(PropertiesHelper.class.getResourceAsStream("/plugin-test.properties"));
+        return Integer.parseInt(properties.getProperty(name));
     }
 }
