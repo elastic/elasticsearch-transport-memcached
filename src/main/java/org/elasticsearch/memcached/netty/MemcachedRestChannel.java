@@ -25,22 +25,18 @@ import org.elasticsearch.common.netty.buffer.ChannelBuffers;
 import org.elasticsearch.common.netty.channel.Channel;
 import org.elasticsearch.common.netty.channel.ChannelFuture;
 import org.elasticsearch.common.netty.channel.ChannelFutureListener;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.http.HttpException;
 import org.elasticsearch.memcached.MemcachedRestRequest;
 import org.elasticsearch.memcached.MemcachedTransportException;
 import org.elasticsearch.memcached.common.Bytes;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestResponse;
-import org.elasticsearch.rest.XContentRestResponse;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
  */
-public class MemcachedRestChannel implements RestChannel {
+public class MemcachedRestChannel extends RestChannel {
 
     public static final ChannelBuffer CRLF = ChannelBuffers.copiedBuffer("\r\n", Charset.forName("US-ASCII"));
     private static final ChannelBuffer VALUE = ChannelBuffers.copiedBuffer("VALUE ", Charset.forName("US-ASCII"));
@@ -56,27 +52,29 @@ public class MemcachedRestChannel implements RestChannel {
 
     private final Channel channel;
 
-    private final MemcachedRestRequest request;
-
-    public MemcachedRestChannel(Channel channel, MemcachedRestRequest request) {
+    public MemcachedRestChannel(Channel channel, org.elasticsearch.rest.RestRequest request) {
+        super(request);
         this.channel = channel;
-        this.request = request;
+    }
+
+    public MemcachedRestRequest getMemcachedRequest() {
+        return (MemcachedRestRequest) request;
     }
 
     @Override
     public void sendResponse(RestResponse response) {
-        if (request.isBinary()) {
-            if (request.isQuiet() && response.status().getStatus() < 500) {
+        if (getMemcachedRequest().isBinary()) {
+            if (getMemcachedRequest().isQuiet() && response.status().getStatus() < 500) {
                 // nothing to send and all is well
                 return;
             }
             try {
-                ChannelBuffer writeBuffer = ChannelBuffers.dynamicBuffer(24 + request.getUriBytes().length + response.contentLength() + 12);
+                ChannelBuffer writeBuffer = ChannelBuffers.dynamicBuffer(24 + getMemcachedRequest().getUriBytes().length + response.content().length() + 12);
                 writeBuffer.writeByte(0x81);  // magic
                 if (request.method() == RestRequest.Method.GET) {
                     writeBuffer.writeByte(0x00); // opcode
                 } else if (request.method() == RestRequest.Method.POST) {
-                    if (request.isQuiet()) {
+                    if (getMemcachedRequest().isQuiet()) {
                         writeBuffer.writeByte(0x11); // opcode
                     } else {
                         writeBuffer.writeByte(0x01); // opcode
@@ -84,7 +82,7 @@ public class MemcachedRestChannel implements RestChannel {
                 } else if (request.method() == RestRequest.Method.DELETE) {
                     writeBuffer.writeByte(0x04); // opcode
                 }
-                short keyLength = request.method() == RestRequest.Method.GET ? (short) request.getUriBytes().length : 0;
+                short keyLength = request.method() == RestRequest.Method.GET ? (short) getMemcachedRequest().getUriBytes().length : 0;
                 writeBuffer.writeShort(keyLength);
                 int extrasLength = request.method() == RestRequest.Method.GET ? 4 : 0;
                 writeBuffer.writeByte(extrasLength); // extra length = flags + expiry
@@ -97,9 +95,9 @@ public class MemcachedRestChannel implements RestChannel {
                     writeBuffer.writeShort(0x0000); // OK
                 }
 
-                int dataLength = request.method() == RestRequest.Method.GET ? response.contentLength() : 0;
+                int dataLength = request.method() == RestRequest.Method.GET ? response.content().length() : 0;
                 writeBuffer.writeInt(dataLength + keyLength + extrasLength); // data length
-                writeBuffer.writeInt(request.getOpaque()); // opaque
+                writeBuffer.writeInt(getMemcachedRequest().getOpaque()); // opaque
                 writeBuffer.writeLong(0); // cas
 
                 if (extrasLength > 0) {
@@ -107,31 +105,16 @@ public class MemcachedRestChannel implements RestChannel {
                     writeBuffer.writeShort(0);
                 }
                 if (keyLength > 0) {
-                    writeBuffer.writeBytes(request.getUriBytes());
+                    writeBuffer.writeBytes(getMemcachedRequest().getUriBytes());
                 }
                 ChannelFutureListener releaseContentListener = null;
                 if (dataLength > 0) {
                     // Convert the response content to a ChannelBuffer.
                     ChannelBuffer buf;
-                    try {
-                    if (response instanceof XContentRestResponse) {
-                        // if its a builder based response, and it was created with a CachedStreamOutput, we can release it
-                        // after we write the response, and no need to do an extra copy because its not thread safe
-                        XContentBuilder builder = ((XContentRestResponse) response).builder();
-                            if (response.contentThreadSafe()) {
-                                buf = builder.bytes().toChannelBuffer();
-                        } else {
-                                buf = builder.bytes().copyBytesArray().toChannelBuffer();
-                        }
+                    if (response.contentThreadSafe()) {
+                            buf = ChannelBuffers.wrappedBuffer(response.content().toBytes(), response.content().arrayOffset(), response.content().length());
                     } else {
-                        if (response.contentThreadSafe()) {
-                                buf = ChannelBuffers.wrappedBuffer(response.content(), response.contentOffset(), response.contentLength());
-                        } else {
-                                buf = ChannelBuffers.copiedBuffer(response.content(), response.contentOffset(), response.contentLength());
-                        }
-                    }
-                    } catch (IOException e) {
-                        throw new HttpException("Failed to convert response to bytes", e);
+                            buf = ChannelBuffers.copiedBuffer(response.content().toBytes(), response.content().arrayOffset(), response.content().length());
                     }
                     writeBuffer = ChannelBuffers.wrappedBuffer(writeBuffer, buf);
                 }
@@ -153,17 +136,17 @@ public class MemcachedRestChannel implements RestChannel {
                     channel.write(DELETED.duplicate());
                 } else { // GET
                     try {
-                        ChannelBuffer writeBuffer = ChannelBuffers.dynamicBuffer(response.contentLength() + 512);
+                        ChannelBuffer writeBuffer = ChannelBuffers.dynamicBuffer(response.content().length() + 512);
                         writeBuffer.writeBytes(VALUE.duplicate());
                         BytesRef bytesRef = new BytesRef(request.uri());
                         writeBuffer.writeBytes(bytesRef.bytes, bytesRef.offset, bytesRef.length);
                         writeBuffer.writeByte(' ');
                         writeBuffer.writeByte('0');
                         writeBuffer.writeByte(' ');
-                        writeBuffer.writeBytes(Bytes.itoa(response.contentLength()));
+                        writeBuffer.writeBytes(Bytes.itoa(response.content().length()));
                         writeBuffer.writeByte('\r');
                         writeBuffer.writeByte('\n');
-                        writeBuffer.writeBytes(response.content(), 0, response.contentLength());
+                        writeBuffer.writeBytes(response.content().toBytes(), 0, response.content().length());
                         writeBuffer.writeByte('\r');
                         writeBuffer.writeByte('\n');
                         writeBuffer.writeBytes(END.duplicate());
