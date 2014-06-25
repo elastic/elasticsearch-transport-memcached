@@ -37,7 +37,8 @@ import static org.hamcrest.Matchers.equalTo;
 
 /**
  */
-@ElasticsearchIntegrationTest.ClusterScope(transportClientRatio = 0.0, scope = ElasticsearchIntegrationTest.Scope.SUITE)
+@ElasticsearchIntegrationTest.ClusterScope(transportClientRatio = 0.0,
+        scope = ElasticsearchIntegrationTest.Scope.SUITE)
 public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegrationTest {
 
     private MemcachedClient memcachedClient;
@@ -70,6 +71,14 @@ public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegra
                 .build();
     }
 
+    @Override
+    public Settings indexSettings() {
+        ImmutableSettings.Builder builder = ImmutableSettings.builder()
+                .put("number_of_shards", 1)
+                .put("number_of_replicas", 0);
+        return builder.build();
+    }
+
     @Test
     public void testSimpleOperations() throws Exception {
         // TODO seems to use SetQ, which is not really supported yet
@@ -83,8 +92,7 @@ public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegra
 //            assertThat(setResult.get(10, TimeUnit.SECONDS), equalTo(true));
 //        }
 
-        // If we have a cluster of 1 node, only 5 shards will be allocated. Otherwise, 10.
-        int nbShards = cluster().size() > 1 ? 10 : 5;
+        createIndex("test");
 
         Future<Boolean> setResult = memcachedClient.set("/test/person/1", 0, jsonBuilder().startObject().field("test", "value").endObject().bytes().copyBytesArray().array());
         assertThat(setResult.get(10, TimeUnit.SECONDS), equalTo(true));
@@ -93,8 +101,8 @@ public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegra
 
         String getResult = (String) memcachedClient.get("/_refresh");
         logger.info(" --> REFRESH " + getResult);
-        assertThat(getResult, Matchers.containsString("\"total\":10"));
-        assertThat(getResult, Matchers.containsString("\"successful\":"+nbShards));
+        assertThat(getResult, Matchers.containsString("\"total\":1"));
+        assertThat(getResult, Matchers.containsString("\"successful\":1"));
         assertThat(getResult, Matchers.containsString("\"failed\":0"));
 
         getResult = (String) memcachedClient.get("/test/person/1");
@@ -108,8 +116,8 @@ public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegra
 
         getResult = (String) memcachedClient.get("/_refresh");
         logger.info(" --> REFRESH " + getResult);
-        assertThat(getResult, Matchers.containsString("\"total\":10"));
-        assertThat(getResult, Matchers.containsString("\"successful\":"+nbShards));
+        assertThat(getResult, Matchers.containsString("\"total\":1"));
+        assertThat(getResult, Matchers.containsString("\"successful\":1"));
         assertThat(getResult, Matchers.containsString("\"failed\":0"));
 
         getResult = (String) memcachedClient.get("/test/person/1");
