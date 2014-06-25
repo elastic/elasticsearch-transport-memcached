@@ -22,6 +22,7 @@ package org.elasticsearch.memcached.test;
 import net.spy.memcached.MemcachedClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.plugins.PluginsService;
 import org.elasticsearch.test.ElasticsearchIntegrationTest;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -68,6 +69,7 @@ public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegra
     protected Settings nodeSettings(int nodeOrdinal) {
         return ImmutableSettings.builder()
                 .put("memcached.port", getPort(nodeOrdinal))
+                .put("plugins." + PluginsService.LOAD_PLUGIN_FROM_CLASSPATH, true)
                 .build();
     }
 
