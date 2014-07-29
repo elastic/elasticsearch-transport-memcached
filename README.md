@@ -2,6 +2,7 @@ Memcached Transport for Elasticsearch
 ==================================
 
 The memcached transport plugin allows to use the REST interface over memcached (though with limitations).
+The memcached protocol supports both the binary and the text protocol, automatically detecting the correct one to use.
 
 In order to install the plugin, simply run: `bin/plugin -install elasticsearch/elasticsearch-transport-memcached/2.0.0`.
 
@@ -19,6 +20,52 @@ In order to install the plugin, simply run: `bin/plugin -install elasticsearch/e
 Please read documentation relative to the version you are using:
 
 * [3.0.0-SNAPSHOT](https://github.com/elasticsearch/elasticsearch-transport-memcached/blob/master/README.md)
+
+## mapping rest to memcached protocol
+
+Memcached commands are mapped to REST and handled by the same generic REST layer in elasticsearch. Here is a list of the 
+memcached commands supported:
+
+### get
+
+The memcached `GET` command maps to a REST `GET`. The key used is the URI (with parameters). The main downside is the 
+fact that the memcached `GET` does not allow body in the request (and `SET` does not allow to return a result...). 
+For this reason, most REST APIs (like search) allow to accept the "source" as a URI parameter as well.
+
+### set
+
+The memcached `SET` command maps to a REST `POST`. The key used is the URI (with parameters), and the body maps to the REST body.
+
+### delete
+
+The memcached `DELETE` command maps to a REST `DELETE`. The key used is the URI (with parameters).
+
+### quit
+
+The memcached `QUIT` command is supported and disconnects the client.
+
+## settings
+
+The following are the settings the can be configured for memcached:
+
+
+|       Setting      |                        Description                                 |
+|--------------------|--------------------------------------------------------------------|
+| memcached.port     | A bind port range. Defaults to 11211-11311.                        |
+
+It also uses the common [network settings](http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/modules-network.html).
+
+## disable memcached
+
+The memcached module can be completely disabled and not started using by setting `memcached.enabled` to `false`.
+By default it is enabled once it is detected as a plugin.
+
+## Known limitations
+
+Memcached protocol only allow the key length to be under 250. It means that when you send a "big" query using `GET`,
+the JSON document passed as a URI parameter it could ends up to be truncated.
+So elasticsearch don't get the whole query and generate a `JsonParseException` error.
+It's better to use `SET` in that case.
 
 License
 -------
