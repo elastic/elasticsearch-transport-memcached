@@ -15,10 +15,12 @@ In order to install the plugin, simply run: `bin/plugin -install elasticsearch/e
 
 |      memcached Plugin       | elasticsearch         | Release date |
 |-----------------------------|-----------------------|:------------:|
+| 2.3.1-SNAPSHOT              | 1.3.0 -> 1.3          |  XXXX-XX-XX  |
 | 2.3.0                       | 1.3.0 -> 1.3          |  2014-07-29  |
 
 Please read documentation relative to the version you are using:
 
+* [2.3.1-SNAPSHOT](https://github.com/elasticsearch/elasticsearch-transport-memcached/blob/es-1.3/README.md)
 * [2.3.0](https://github.com/elasticsearch/elasticsearch-transport-memcached/blob/v2.3.0/README.md)
 
 
