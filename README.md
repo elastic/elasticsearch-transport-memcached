@@ -7,6 +7,7 @@ The memcached protocol supports both the binary and the text protocol, automatic
 In order to install the plugin, simply run: `bin/plugin -install elasticsearch/elasticsearch-transport-memcached/2.0.0`.
 
 * For master elasticsearch versions, look at [master branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/master).
+* For 1.x.x elasticsearch versions, look at [es-1.x branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/es-1.x).
 * For 1.3.x elasticsearch versions, look at [es-1.3 branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/es-1.3).
 * For 1.2.x elasticsearch versions, look at [es-1.2 branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/es-1.2).
 * For 1.1.x elasticsearch versions, look at [es-1.1 branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/es-1.1).
