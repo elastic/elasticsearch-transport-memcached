@@ -4,7 +4,7 @@ Memcached Transport for Elasticsearch
 The memcached transport plugin allows to use the REST interface over memcached (though with limitations).
 The memcached protocol supports both the binary and the text protocol, automatically detecting the correct one to use.
 
-In order to install the plugin, simply run: `bin/plugin -install elasticsearch/elasticsearch-transport-memcached/2.0.0`.
+In order to install the plugin, simply run: `bin/plugin -install elasticsearch/elasticsearch-transport-memcached/2.3.0`.
 
 * For master elasticsearch versions, look at [master branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/master).
 * For 1.3.x elasticsearch versions, look at [es-1.3 branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/es-1.3).
@@ -15,11 +15,11 @@ In order to install the plugin, simply run: `bin/plugin -install elasticsearch/e
 
 |      memcached Plugin       | elasticsearch         | Release date |
 |-----------------------------|-----------------------|:------------:|
-| 2.3.0-SNAPSHOT              | 1.3.0 -> 1.3          |  XXXX-XX-XX  |
+| 2.3.0                       | 1.3.0 -> 1.3          |  2014-07-29  |
 
 Please read documentation relative to the version you are using:
 
-* [2.3.0-SNAPSHOT](https://github.com/elasticsearch/elasticsearch-transport-memcached/blob/es-1.3/README.md)
+* [2.3.0](https://github.com/elasticsearch/elasticsearch-transport-memcached/blob/v2.3.0/README.md)
 
 
 ## mapping rest to memcached protocol
