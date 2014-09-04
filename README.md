@@ -4,23 +4,10 @@ Memcached Transport for Elasticsearch
 The memcached transport plugin allows to use the REST interface over memcached (though with limitations).
 The memcached protocol supports both the binary and the text protocol, automatically detecting the correct one to use.
 
-In order to install the plugin, simply run: `bin/plugin -install elasticsearch/elasticsearch-transport-memcached/2.0.0`.
+## Version 2.4.0-SNAPSHOT for Elasticsearch: 1.x
 
-* For master elasticsearch versions, look at [master branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/master).
-* For 1.x.x elasticsearch versions, look at [es-1.x branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/es-1.x).
-* For 1.3.x elasticsearch versions, look at [es-1.3 branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/es-1.3).
-* For 1.2.x elasticsearch versions, look at [es-1.2 branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/es-1.2).
-* For 1.1.x elasticsearch versions, look at [es-1.1 branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/es-1.1).
-* For 1.0.x elasticsearch versions, look at [es-1.0 branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/es-1.0).
-* For 0.90.x elasticsearch versions, look at [es-0.90 branch](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/es-0.90).
-
-|      memcached Plugin       | elasticsearch         | Release date |
-|-----------------------------|-----------------------|:------------:|
-| 2.4.0-SNAPSHOT              | 1.x.0 -> 1.x          |  XXXX-XX-XX  |
-
-Please read documentation relative to the version you are using:
-
-* [2.4.0-SNAPSHOT](https://github.com/elasticsearch/elasticsearch-transport-memcached/blob/es-1.x/README.md)
+If you are looking for another version documentation, please refer to the 
+[compatibility matrix](http://github.com/elasticsearch/elasticsearch-transport-memcached#memcached-transport-for-elasticsearch).
 
 
 ## mapping rest to memcached protocol
