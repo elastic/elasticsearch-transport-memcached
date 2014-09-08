@@ -20,7 +20,6 @@
 package org.elasticsearch.memcached.netty;
 
 import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.util.CharsRef;
 import org.apache.lucene.util.UnicodeUtil;
 import org.elasticsearch.Version;
 import org.elasticsearch.common.bytes.BytesArray;
@@ -93,19 +92,19 @@ public class MemcachedDecoder extends FrameDecoder {
 
                 buffer.skipBytes(extraLength); // get extras, can be empty
 
-                CharsRef spare = new CharsRef();
+                char spare[] = new char[keyLength];
                 if (opcode == 0x00) { // GET
                     byte[] key = new byte[keyLength];
                     buffer.readBytes(key);
                     UnicodeUtil.UTF8toUTF16(key, 0, key.length, spare);
-                    request = new MemcachedRestRequest(RestRequest.Method.GET, spare.toString(), key, -1, true);
+                    request = new MemcachedRestRequest(RestRequest.Method.GET, new String(spare), key, -1, true);
                     request.setOpaque(opaque);
                     return request;
                 } else if (opcode == 0x04) { // DELETE
                     byte[] key = new byte[keyLength];
                     buffer.readBytes(key);
                     UnicodeUtil.UTF8toUTF16(key, 0, key.length, spare);
-                    request = new MemcachedRestRequest(RestRequest.Method.DELETE, spare.toString(), key, -1, true);
+                    request = new MemcachedRestRequest(RestRequest.Method.DELETE, new String(spare), key, -1, true);
                     request.setOpaque(opaque);
                     return request;
                 } else if (opcode == 0x01/* || opcode == 0x11*/) { // SET
@@ -114,7 +113,7 @@ public class MemcachedDecoder extends FrameDecoder {
                     UnicodeUtil.UTF8toUTF16(key, 0, key.length, spare);
                     // the remainder of the message -- that is, totalLength - (keyLength + extraLength) should be the payload
                     int size = totalBodyLength - keyLength - extraLength;
-                    request = new MemcachedRestRequest(RestRequest.Method.POST, spare.toString(), key, size, true);
+                    request = new MemcachedRestRequest(RestRequest.Method.POST, new String(spare), key, size, true);
                     request.setOpaque(opaque);
                     request.setData(new ChannelBufferBytesReference(buffer.readSlice(size)));
                     request.setQuiet(opcode == 0x11);
