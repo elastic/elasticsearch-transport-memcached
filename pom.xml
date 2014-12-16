@@ -3,6 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch-parent</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+    </parent>
+
     <groupId>org.elasticsearch</groupId>
     <artifactId>elasticsearch-transport-memcached</artifactId>
     <version>3.0.0-SNAPSHOT</version>
@@ -20,59 +27,24 @@
     </licenses>
     <scm>
         <connection>scm:git:git@github.com:elasticsearch/elasticsearch-transport-memcached.git</connection>
-        <developerConnection>scm:git:git@github.com:elasticsearch/elasticsearch-transport-memcached.git
-        </developerConnection>
+        <developerConnection>scm:git:git@github.com:elasticsearch/elasticsearch-transport-memcached.git</developerConnection>
         <url>http://github.com/elasticsearch/elasticsearch-transport-memcached</url>
     </scm>
 
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
-
     <properties>
-        <elasticsearch.version>2.0.0-SNAPSHOT</elasticsearch.version>
-        <lucene.version>5.0.0</lucene.version>
-        <lucene.maven.version>5.0.0-snapshot-1642891</lucene.maven.version>
-        <tests.shuffle>true</tests.shuffle>
-        <tests.output>onerror</tests.output>
-        <tests.client.ratio></tests.client.ratio>
+        <!-- You can add any specific project property here -->
         <es.plugin.port>11211</es.plugin.port>
-        <es.logger.level>INFO</es.logger.level>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>Lucene snapshots</id>
-            <url>https://download.elasticsearch.org/lucenesnapshots/1642891/</url>
-        </repository>
-        <repository>
-            <id>sonatype</id>
-            <url>http://oss.sonatype.org/content/repositories/releases/</url>
-        </repository>
-        <repository>
-            <id>spy</id>
-            <name>Spy Repository</name>
-            <url>http://files.couchbase.com/maven2/</url>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-            <version>1.3.RC2</version>
-            <scope>test</scope>
+            <artifactId>hamcrest-all</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
-            <version>1.3.RC2</version>
-            <scope>test</scope>
+            <groupId>com.carrotsearch.randomizedtesting</groupId>
+            <artifactId>randomizedtesting-runner</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.carrotsearch.randomizedtesting</groupId>
             <artifactId>randomizedtesting-runner</artifactId>
@@ -83,39 +55,30 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-test-framework</artifactId>
-            <version>${lucene.maven.version}</version>
-            <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>${elasticsearch.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
-            <scope>runtime</scope>
         </dependency>
 
+        <!-- Memcached for tests -->
         <dependency>
-            <groupId>spy</groupId>
+            <groupId>net.spy</groupId>
             <artifactId>spymemcached</artifactId>
-            <version>2.6</version>
+            <version>2.11.5</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>${elasticsearch.version}</version>
             <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -141,16 +104,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.carrotsearch.randomizedtesting</groupId>
                 <artifactId>junit4-maven-plugin</artifactId>
-                <version>2.0.14</version>
                 <executions>
                     <execution>
                         <id>tests</id>
@@ -175,15 +132,17 @@
                                         showStatusIgnored="true"
                                         showSuiteSummary="true"
                                         timestamps="false"/>
-                                <report-execution-times file="${basedir}/.local-execution-hints.log"/>
+                                <report-execution-times historyLength="20" file="${basedir}/${execution.hint.file}"/>
                             </listeners>
                             <assertions>
                                 <enable/>
+                                <disable package="${tests.assertion.disabled}"/>
+                                <!-- pass org.elasticsearch to run without assertions -->
                             </assertions>
                             <parallelism>1</parallelism>
                             <balancers>
                                 <execution-times>
-                                    <fileset dir="${basedir}" includes=".local-execution-hints.log"/>
+                                    <fileset dir="${basedir}" includes="${execution.hint.file}"/>
                                 </execution-times>
                             </balancers>
                             <includes>
@@ -194,44 +153,68 @@
                                 <exclude>**/Abstract*.class</exclude>
                                 <exclude>**/*StressTest.class</exclude>
                             </excludes>
-                            <argLine>
-                                ${tests.jvm.argline}
-                            </argLine>
                             <jvmArgs>
-                                <param>-Xmx512m</param>
+                                <param>-Xmx${tests.heap.size}</param>
+                                <param>-Xms${tests.heap.size}</param>
                                 <param>-Xss256k</param>
+                                <param>-XX:MaxPermSize=128m</param>
                                 <param>-XX:MaxDirectMemorySize=512m</param>
                                 <param>-Des.logger.prefix=</param>
+                                <param>-XX:+HeapDumpOnOutOfMemoryError</param>
+                                <param>-XX:HeapDumpPath=${tests.heapdump.path}</param>
                             </jvmArgs>
                             <shuffleOnSlave>${tests.shuffle}</shuffleOnSlave>
                             <sysouts>${tests.verbose}</sysouts>
                             <seed>${tests.seed}</seed>
                             <haltOnFailure>${tests.failfast}</haltOnFailure>
+                            <uniqueSuiteNames>false</uniqueSuiteNames>
                             <systemProperties>
+                                <java.io.tmpdir>.</java.io.tmpdir>
+                                <!-- we use '.' since this is different per JVM-->
                                 <!-- RandomizedTesting library system properties -->
+                                <tests.bwc>${tests.bwc}</tests.bwc>
+                                <tests.bwc.path>${tests.bwc.path}</tests.bwc.path>
+                                <tests.bwc.version>${tests.bwc.version}</tests.bwc.version>
                                 <tests.jvm.argline>${tests.jvm.argline}</tests.jvm.argline>
+                                <tests.processors>${tests.processors}</tests.processors>
+                                <tests.appendseed>${tests.appendseed}</tests.appendseed>
                                 <tests.iters>${tests.iters}</tests.iters>
                                 <tests.maxfailures>${tests.maxfailures}</tests.maxfailures>
                                 <tests.failfast>${tests.failfast}</tests.failfast>
                                 <tests.class>${tests.class}</tests.class>
                                 <tests.method>${tests.method}</tests.method>
                                 <tests.nightly>${tests.nightly}</tests.nightly>
+                                <tests.verbose>${tests.verbose}</tests.verbose>
                                 <tests.badapples>${tests.badapples}</tests.badapples>
                                 <tests.weekly>${tests.weekly}</tests.weekly>
-                                <tests.slow>${tests.slow}</tests.slow>
-                                <tests.azure>${tests.azure}</tests.azure>
                                 <tests.awaitsfix>${tests.awaitsfix}</tests.awaitsfix>
                                 <tests.slow>${tests.slow}</tests.slow>
                                 <tests.timeoutSuite>${tests.timeoutSuite}</tests.timeoutSuite>
                                 <tests.showSuccess>${tests.showSuccess}</tests.showSuccess>
                                 <tests.integration>${tests.integration}</tests.integration>
-                                <tests.cluster_seed>${tests.cluster_seed}</tests.cluster_seed>
                                 <tests.client.ratio>${tests.client.ratio}</tests.client.ratio>
+                                <tests.enable_mock_modules>${tests.enable_mock_modules}</tests.enable_mock_modules>
+                                <tests.assertion.disabled>${tests.assertion.disabled}</tests.assertion.disabled>
+                                <tests.rest>${tests.rest}</tests.rest>
+                                <tests.rest.suite>${tests.rest.suite}</tests.rest.suite>
+                                <tests.rest.blacklist>${tests.rest.blacklist}</tests.rest.blacklist>
+                                <tests.rest.spec>${tests.rest.spec}</tests.rest.spec>
+                                <tests.network>${tests.network}</tests.network>
+                                <tests.cluster>${tests.cluster}</tests.cluster>
+                                <tests.heap.size>${tests.heap.size}</tests.heap.size>
+                                <tests.filter>${tests.filter}</tests.filter>
+                                <tests.version>${elasticsearch.version}</tests.version>
+                                <tests.locale>${tests.locale}</tests.locale>
+                                <tests.timezone>${tests.timezone}</tests.timezone>
                                 <es.node.local>${env.ES_TEST_LOCAL}</es.node.local>
                                 <es.node.mode>${es.node.mode}</es.node.mode>
-                                <es.config>${es.config}</es.config>
                                 <es.logger.level>${es.logger.level}</es.logger.level>
+                                <tests.security.manager>${tests.security.manager}</tests.security.manager>
+                                <tests.compatibility>${tests.compatibility}</tests.compatibility>
                                 <java.awt.headless>true</java.awt.headless>
+                                <!-- everything below is for security manager / test.policy -->
+                                <junit4.tempDir>${project.build.directory}</junit4.tempDir>
+                                <java.security.policy>${basedir}/dev-tools/tests.policy</java.security.policy>
                             </systemProperties>
                         </configuration>
                     </execution>
@@ -240,27 +223,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.13</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.3</version>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
                     <outputDirectory>${project.build.directory}/releases/</outputDirectory>
