@@ -62,7 +62,9 @@ public abstract class AbstractMemcachedActionsTests extends ElasticsearchIntegra
 
     @After
     public void stopMemcache() {
-        if (memcachedClient != null) memcachedClient.shutdown();
+        if (memcachedClient != null) {
+            memcachedClient.shutdown();
+        }
     }
 
     @Override
