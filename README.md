@@ -4,7 +4,7 @@ Memcached Transport for Elasticsearch
 The memcached transport plugin allows to use the REST interface over memcached (though with limitations).
 The memcached protocol supports both the binary and the text protocol, automatically detecting the correct one to use.
 
-## Version 2.5.0-SNAPSHOT for Elasticsearch: 1.x
+## Version 2.5.0-SNAPSHOT for Elasticsearch: 1.5
 
 If you are looking for another version documentation, please refer to the 
 [compatibility matrix](http://github.com/elasticsearch/elasticsearch-transport-memcached#memcached-transport-for-elasticsearch).
