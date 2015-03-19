@@ -1,6 +1,8 @@
 Memcached Transport for Elasticsearch
 ==================================
 
+**DEPRECATED: The memcached transport is deprecated as of Elasticsearch v1.5.0, and will be removed in 2.0**
+
 The memcached transport plugin allows to use the REST interface over memcached (though with limitations).
 The memcached protocol supports both the binary and the text protocol, automatically detecting the correct one to use.
 
