@@ -9,7 +9,7 @@
     <packaging>jar</packaging>
     <name>Elasticsearch Memcached transport plugin</name>
     <description>The memcached transport plugin allows to use the REST interface over memcached.</description>
-    <url>https://github.com/elasticsearch/elasticsearch-transport-memcached/</url>
+    <url>https://github.com/elastic/elasticsearch-transport-memcached/</url>
     <inceptionYear>2009</inceptionYear>
     <licenses>
         <license>
@@ -19,10 +19,9 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:git@github.com:elasticsearch/elasticsearch-transport-memcached.git</connection>
-        <developerConnection>scm:git:git@github.com:elasticsearch/elasticsearch-transport-memcached.git
-        </developerConnection>
-        <url>http://github.com/elasticsearch/elasticsearch-transport-memcached</url>
+        <connection>scm:git:git@github.com:elastic/elasticsearch-transport-memcached.git</connection>
+        <developerConnection>scm:git:git@github.com:elastic/elasticsearch-transport-memcached.git</developerConnection>
+        <url>http://github.com/elastic/elasticsearch-transport-memcached</url>
     </scm>
 
     <parent>
