@@ -53,7 +53,7 @@ public class MemcachedRestChannel extends RestChannel {
     private final Channel channel;
 
     public MemcachedRestChannel(Channel channel, org.elasticsearch.rest.RestRequest request) {
-        super(request);
+        super(request, true);
         this.channel = channel;
     }
 
