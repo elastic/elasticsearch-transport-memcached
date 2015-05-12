@@ -111,11 +111,9 @@ public class MemcachedRestChannel extends RestChannel {
                 if (dataLength > 0) {
                     // Convert the response content to a ChannelBuffer.
                     ChannelBuffer buf;
-                    if (response.contentThreadSafe()) {
-                            buf = ChannelBuffers.wrappedBuffer(response.content().toBytes(), response.content().arrayOffset(), response.content().length());
-                    } else {
-                            buf = ChannelBuffers.copiedBuffer(response.content().toBytes(), response.content().arrayOffset(), response.content().length());
-                    }
+                    // TODO: do we always need a copy?
+                    // there was an optimization previously, but it did not compile, so it was killed without mercy.
+                    buf = ChannelBuffers.copiedBuffer(response.content().toBytes(), response.content().arrayOffset(), response.content().length());
                     writeBuffer = ChannelBuffers.wrappedBuffer(writeBuffer, buf);
                 }
                 ChannelFuture future = channel.write(writeBuffer);
