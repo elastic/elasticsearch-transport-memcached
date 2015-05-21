@@ -38,38 +38,12 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-test-framework</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
-
         <!-- Memcached for tests -->
         <dependency>
             <groupId>net.spy</groupId>
             <artifactId>spymemcached</artifactId>
             <version>2.11.5</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-            <type>test-jar</type>
         </dependency>
     </dependencies>
 
