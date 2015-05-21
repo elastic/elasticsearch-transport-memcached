@@ -36,6 +36,7 @@ import org.elasticsearch.memcached.MemcachedRestRequest;
 import org.elasticsearch.rest.RestRequest;
 
 import java.io.StreamCorruptedException;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 /**
@@ -189,7 +190,7 @@ public class MemcachedDecoder extends FrameDecoder {
                     this.request = new MemcachedRestRequest(RestRequest.Method.POST, args[1], null, Integer.parseInt(args[4]), false);
                     buffer.markReaderIndex();
                 } else if ("version".equals(cmd)) { // sent as a noop
-                    byte[] bytes = Version.CURRENT.toString().getBytes();
+                    byte[] bytes = Version.CURRENT.toString().getBytes(StandardCharsets.UTF_8);
                     ChannelBuffer writeBuffer = ChannelBuffers.dynamicBuffer(bytes.length);
                     writeBuffer.writeBytes(bytes);
                     channel.write(writeBuffer);
