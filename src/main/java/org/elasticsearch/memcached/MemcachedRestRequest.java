@@ -110,12 +110,6 @@ public class MemcachedRestRequest extends RestRequest {
     }
 
     @Override
-    public boolean contentUnsafe() {
-        // we still slice on teh network buffer, but its always copied in (this version) of netty
-        return false;
-    }
-
-    @Override
     public BytesReference content() {
         return data;
     }
