@@ -6,7 +6,7 @@
 
     <groupId>org.elasticsearch</groupId>
     <artifactId>elasticsearch-transport-memcached</artifactId>
-    <version>2.7.0</version>
+    <version>2.7.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Elasticsearch Memcached transport plugin</name>
     <description>The memcached transport plugin allows to use the REST interface over memcached.</description>
