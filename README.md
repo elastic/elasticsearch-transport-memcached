@@ -6,7 +6,7 @@ Memcached Transport for Elasticsearch
 The memcached transport plugin allows to use the REST interface over memcached (though with limitations).
 The memcached protocol supports both the binary and the text protocol, automatically detecting the correct one to use.
 
-In order to install the plugin, simply run: 
+In order to install the plugin, simply run:
 
 ```sh
 bin/plugin install elasticsearch/elasticsearch-transport-memcached/2.7.0
@@ -14,10 +14,10 @@ bin/plugin install elasticsearch/elasticsearch-transport-memcached/2.7.0
 
 You need to install a version matching your Elasticsearch version:
 
-| elasticsearch |   memcached Plugin    |   Docs     |  
+| elasticsearch |   memcached Plugin    |   Docs     |
 |---------------|-----------------------|------------|
 | master        |  Build from source    | See below  |
-|    es-1.x              |     2.7.0         | [2.7.0](https://github.com/elastic/elasticsearch-transport-memcached/tree/v2.7.0/#version-270-for-elasticsearch-17)                  |
+|    es-1.7              |     2.7.0         | [2.7.0](https://github.com/elastic/elasticsearch-transport-memcached/tree/v2.7.0/#version-270-for-elasticsearch-17)                  |
 |    es-1.6              |     2.6.0         | [2.6.0](https://github.com/elastic/elasticsearch-transport-memcached/tree/v2.6.0/#version-260-for-elasticsearch-16)                  |
 |    es-1.5              |     2.5.0         | [2.5.0](https://github.com/elastic/elasticsearch-transport-memcached/tree/v2.5.0/#version-250-for-elasticsearch-15)                  |
 |    es-1.4              |     2.4.1         | [2.4.1](https://github.com/elasticsearch/elasticsearch-transport-memcached/tree/v2.4.1/#version-241-for-elasticsearch-14)                  |
@@ -37,13 +37,13 @@ plugin --install transport-memcached \
 
 ## mapping rest to memcached protocol
 
-Memcached commands are mapped to REST and handled by the same generic REST layer in elasticsearch. Here is a list of the 
+Memcached commands are mapped to REST and handled by the same generic REST layer in elasticsearch. Here is a list of the
 memcached commands supported:
 
 ### get
 
-The memcached `GET` command maps to a REST `GET`. The key used is the URI (with parameters). The main downside is the 
-fact that the memcached `GET` does not allow body in the request (and `SET` does not allow to return a result...). 
+The memcached `GET` command maps to a REST `GET`. The key used is the URI (with parameters). The main downside is the
+fact that the memcached `GET` does not allow body in the request (and `SET` does not allow to return a result...).
 For this reason, most REST APIs (like search) allow to accept the "source" as a URI parameter as well.
 
 ### set
